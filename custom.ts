@@ -10,6 +10,34 @@ namespace miniMenu {
     let printCanvas: Image;
     let frameCanvas: Image;
 
+    let currentPlayerIndex = 0
+
+    function _getCurrentController(): controller.Controller {
+        return controller.players()[currentPlayerIndex];
+    }
+
+    /**
+    * Sets current controller index, who is controlling the modal dialog
+    *
+    * @param playerIndex current player index
+    */
+    //% blockId=mini_menu_set_menu_set_current_controller
+    //% block="set current controller to $playerIndex"
+    //% group="Controls"
+    //% weight=100
+    //% blockGap=8
+    export function setCurrentController(playerIndex:number) {
+        currentPlayerIndex = playerIndex;
+
+        for (const button of [_getCurrentController().up, _getCurrentController().right, _getCurrentController().down, _getCurrentController().menu, _getCurrentController().left, _getCurrentController().A, _getCurrentController().B]) {
+            button.addEventListener(ControllerButtonEvent.Pressed, () => {
+                for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu).filter(buttonEventsEnabled)) {
+                    (sprite as MenuSprite).fireButtonEvent(button);
+                }
+            })
+        }
+    }
+
     class MiniMenuState {
         menuStyle: MenuStyle;
         defaultStyle: Style;
@@ -32,7 +60,7 @@ namespace miniMenu {
             this.titleStyle = this.defaultStyle.clone();
             this.titleStyle.background = 0;
 
-            for (const button of [controller.up, controller.right, controller.down, controller.menu, controller.left, controller.A, controller.B]) {
+            for (const button of [_getCurrentController().up, _getCurrentController().right, _getCurrentController().down, _getCurrentController().menu, _getCurrentController().left, _getCurrentController().A, _getCurrentController().B]) {
                 button.addEventListener(ControllerButtonEvent.Pressed, () => {
                     for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu).filter(buttonEventsEnabled)) {
                         (sprite as MenuSprite).fireButtonEvent(button);
@@ -108,7 +136,7 @@ namespace miniMenu {
     }
 
     export enum MoveDirection {
-        //% block=up
+//% block=up
         Up,
         //% block=down
         Down,
@@ -788,10 +816,10 @@ namespace miniMenu {
             this.buttonHandlers = {};
             this.buttonEventsEnabled = false;
 
-            this.onButtonEvent(controller.up, () => this.moveSelection(MoveDirection.Up));
-            this.onButtonEvent(controller.down, () => this.moveSelection(MoveDirection.Down));
-            this.onButtonEvent(controller.left, () => this.moveSelection(MoveDirection.Left));
-            this.onButtonEvent(controller.right, () => this.moveSelection(MoveDirection.Right));
+            this.onButtonEvent(_getCurrentController().up, () => this.moveSelection(MoveDirection.Up));
+            this.onButtonEvent(_getCurrentController().down, () => this.moveSelection(MoveDirection.Down));
+            this.onButtonEvent(_getCurrentController().left, () => this.moveSelection(MoveDirection.Left));
+            this.onButtonEvent(_getCurrentController().right, () => this.moveSelection(MoveDirection.Right));
             this.yScroll = 0;
             this.targetYScroll = 0;
             this.xScroll = 0;
@@ -1120,6 +1148,24 @@ namespace miniMenu {
         //% blockGap=8
         //% help=github:arcade-mini-menu/docs/on-button-pressed
         onButtonPressed(button: controller.Button, handler: (selection: string, selectedIndex: number) => void) {
+            let actualButtonId = button.id
+
+            if (currentPlayerIndex != 0) {
+                if (button.id == 1) {
+                    button = _getCurrentController().left
+                } else if (button.id == 2) {
+                    button = _getCurrentController().up
+                } else if (button.id == 3) {
+                    button = _getCurrentController().right
+                } else if (button.id == 4) {
+                    button = _getCurrentController().down
+                } else if (button.id == 5) {
+                    button = _getCurrentController().A
+                } else if (button.id == 6) {
+                    button = _getCurrentController().B
+                } 
+            }
+            
             this.onButtonEvent(button, handler);
         }
 
