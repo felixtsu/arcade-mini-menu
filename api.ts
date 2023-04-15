@@ -73,6 +73,7 @@ namespace miniMenu {
         item11?: MenuItem,
         item12?: MenuItem,
     ) {
+        console.log("inside createMenu")
         _init();
 
         const m = new MenuSprite();

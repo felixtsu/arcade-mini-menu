@@ -28,7 +28,10 @@ namespace miniMenu {
     //% blockGap=8
     export function setCurrentController(playerIndex:number) {
         currentPlayerIndex = playerIndex;
-
+    
+        if (playerIndex == 0) {
+            return;
+        }
         for (const button of [_getCurrentController().up, _getCurrentController().right, _getCurrentController().down, _getCurrentController().menu, _getCurrentController().left, _getCurrentController().A, _getCurrentController().B]) {
             button.addEventListener(ControllerButtonEvent.Pressed, () => {
                 for (const sprite of sprites.allOfKind(SpriteKind.MiniMenu).filter(buttonEventsEnabled)) {
